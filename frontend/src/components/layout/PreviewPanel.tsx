@@ -1,58 +1,84 @@
 import { useDocumentStore } from "../../stores";
+import { DocumentPreview } from "../preview";
+import type { PreviewDocument } from "../preview";
 
 export function PreviewPanel() {
-  const { metadata, templateName } = useDocumentStore();
+  const { metadata, templateName, pageSettings } = useDocumentStore();
+
+  // Build preview document from store state
+  const previewDoc: PreviewDocument = {
+    metadata,
+    page_settings: pageSettings,
+    styles: {
+      body: {
+        font: { name: "Times New Roman", size_pt: 12, bold: false, italic: false },
+        alignment: "justify",
+        line_spacing: 1.5,
+        first_line_indent_cm: 1.27,
+      },
+      headings: [
+        { level: 1, font: { name: "Times New Roman", size_pt: 14, bold: true, italic: false }, alignment: "center" },
+        { level: 2, font: { name: "Times New Roman", size_pt: 12, bold: true, italic: false }, alignment: "left" },
+      ],
+    },
+    sections: templateName
+      ? [
+          {
+            title: "BAB I PENDAHULUAN",
+            elements: [
+              { type: "heading", level: 1, text: "BAB I PENDAHULUAN" },
+              { type: "heading", level: 2, text: "1.1 Tujuan Praktikum", numbering: "1.1" },
+              { type: "paragraph", text: "Isi tujuan praktikum di sini." },
+              { type: "heading", level: 2, text: "1.2 Alat dan Bahan", numbering: "1.2" },
+              { type: "paragraph", text: "Isi alat dan bahan di sini." },
+            ],
+          },
+          {
+            title: "BAB II DASAR TEORI",
+            elements: [
+              { type: "heading", level: 1, text: "BAB II DASAR TEORI" },
+              { type: "paragraph", text: "Isi dasar teori di sini." },
+            ],
+          },
+          {
+            title: "BAB III HASIL PRAKTIKUM DAN PEMBAHASAN",
+            elements: [
+              { type: "heading", level: 1, text: "BAB III HASIL PRAKTIKUM DAN PEMBAHASAN" },
+              { type: "heading", level: 2, text: "3.1 Source Code", numbering: "3.1" },
+              { type: "paragraph", text: "Sertakan source code di sini." },
+              { type: "heading", level: 2, text: "3.2 Screenshot Output", numbering: "3.2" },
+              { type: "paragraph", text: "Sertakan screenshot output di sini." },
+              { type: "heading", level: 2, text: "3.3 Analisis dan Pembahasan", numbering: "3.3" },
+              { type: "paragraph", text: "Isi analisis dan pembahasan di sini." },
+            ],
+          },
+          {
+            title: "BAB IV KESIMPULAN",
+            elements: [
+              { type: "heading", level: 1, text: "BAB IV KESIMPULAN" },
+              { type: "paragraph", text: "Isi kesimpulan di sini." },
+            ],
+          },
+          {
+            title: "Daftar Pustaka",
+            elements: [
+              { type: "heading", level: 1, text: "Daftar Pustaka" },
+              { type: "paragraph", text: "Isi daftar pustaka di sini." },
+            ],
+          },
+        ]
+      : [],
+  };
 
   return (
     <main className="flex-1 overflow-auto bg-muted/20 p-8">
-      <div className="mx-auto max-w-[210mm]">
-        {/* Document preview */}
-        <div
-          className="bg-white shadow-lg border border-border"
-          style={{
-            minHeight: "297mm",
-            padding: "30mm 40mm",
-          }}
-        >
-          {!templateName ? (
-            <div className="flex items-center justify-center h-[237mm] text-muted-foreground text-sm">
-              Pilih template untuk memulai
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {/* Cover page preview */}
-              <div className="text-center space-y-8 pt-[60mm]">
-                <div className="w-20 h-20 mx-auto bg-muted rounded-full flex items-center justify-center text-muted-foreground text-xs">
-                  Logo
-                </div>
-                <div>
-                  <h1 className="text-lg font-bold uppercase">
-                    {metadata.module || "Judul Praktikum"}
-                  </h1>
-                </div>
-                <div className="text-sm space-y-1">
-                  <p>{metadata.author || "Nama Mahasiswa"}</p>
-                  <p>{metadata.nim || "NIM"}</p>
-                  <p>{metadata.class_name || "Kelas"}</p>
-                </div>
-                <div className="text-sm text-muted-foreground pt-8">
-                  <p>{metadata.program || "Program Studi"}</p>
-                  <p>{metadata.faculty || "Fakultas"}</p>
-                  <p>{metadata.institution || "Telkom University"}</p>
-                  <p>{metadata.year || new Date().getFullYear()}</p>
-                </div>
-              </div>
-
-              {/* Content preview placeholder */}
-              <div className="border-t border-border pt-8 mt-16">
-                <p className="text-sm text-muted-foreground text-center">
-                  Preview konten dokumen akan ditampilkan di sini
-                </p>
-              </div>
-            </div>
-          )}
+      {!templateName ? (
+        <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+          Pilih template untuk memulai
         </div>
-      </div>
+      ) : (
+        <DocumentPreview document={previewDoc} />
+      )}
     </main>
   );
 }
