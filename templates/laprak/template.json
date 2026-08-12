@@ -1,0 +1,154 @@
+{
+  "name": "laprak",
+  "display_name": "Laporan Praktikum",
+  "description": "Template for lab practice reports (Laprak)",
+  "version": "1.0.0",
+  "page": {
+    "paper": "a4",
+    "orientation": "portrait",
+    "margins": {
+      "left": 4.0,
+      "top": 3.0,
+      "right": 3.0,
+      "bottom": 3.0
+    }
+  },
+  "styles": {
+    "body": {
+      "font": {
+        "name": "Times New Roman",
+        "size": 12
+      },
+      "alignment": "justify",
+      "line_spacing": 1.5,
+      "first_line_indent_cm": 1.27
+    },
+    "headings": [
+      {
+        "level": 1,
+        "font": {
+          "name": "Times New Roman",
+          "size": 14,
+          "bold": true
+        },
+        "alignment": "center",
+        "space_before_pt": 24,
+        "space_after_pt": 12,
+        "numbering_format": null
+      },
+      {
+        "level": 2,
+        "font": {
+          "name": "Times New Roman",
+          "size": 12,
+          "bold": true
+        },
+        "alignment": "left",
+        "space_before_pt": 12,
+        "space_after_pt": 6,
+        "numbering_format": "decimal"
+      }
+    ],
+    "cover": {
+      "title_font": {
+        "name": "Times New Roman",
+        "size": 14,
+        "bold": true
+      },
+      "logo_width_cm": 5.0,
+      "logo_height_cm": 5.0,
+      "logo_alignment": "center"
+    },
+    "table": {
+      "font": {
+        "name": "Times New Roman",
+        "size": 10
+      },
+      "border_width_pt": 0.5,
+      "header_bold": true
+    }
+  },
+  "structure": [
+    {
+      "title": "Cover",
+      "type": "cover",
+      "elements": []
+    },
+    {
+      "title": "BAB I PENDAHULUAN",
+      "type": "chapter",
+      "heading_level": 1,
+      "numbering": "BAB I",
+      "elements": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "1.1 Tujuan Praktikum",
+          "numbering": "1.1"
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "1.2 Alat dan Bahan",
+          "numbering": "1.2"
+        }
+      ]
+    },
+    {
+      "title": "BAB II DASAR TEORI",
+      "type": "chapter",
+      "heading_level": 1,
+      "numbering": "BAB II",
+      "elements": []
+    },
+    {
+      "title": "BAB III HASIL PRAKTIKUM DAN PEMBAHASAN",
+      "type": "chapter",
+      "heading_level": 1,
+      "numbering": "BAB III",
+      "elements": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "3.1 Source Code",
+          "numbering": "3.1"
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "3.2 Screenshot Output",
+          "numbering": "3.2"
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "3.3 Analisis dan Pembahasan",
+          "numbering": "3.3"
+        }
+      ]
+    },
+    {
+      "title": "BAB IV KESIMPULAN",
+      "type": "chapter",
+      "heading_level": 1,
+      "numbering": "BAB IV",
+      "elements": []
+    },
+    {
+      "title": "Daftar Pustaka",
+      "type": "references",
+      "elements": []
+    }
+  ],
+  "metadata_fields": [
+    {"key": "module", "label": "Modul / Judul Praktikum", "type": "text", "required": true},
+    {"key": "author", "label": "Nama Mahasiswa", "type": "text", "required": true},
+    {"key": "nim", "label": "NIM", "type": "text", "required": true},
+    {"key": "class_name", "label": "Kelas", "type": "text", "required": true},
+    {"key": "assistant", "label": "Asprak / Praktikan", "type": "text", "required": false},
+    {"key": "program", "label": "Program Studi", "type": "text", "required": false},
+    {"key": "faculty", "label": "Fakultas", "type": "text", "required": false},
+    {"key": "institution", "label": "Universitas", "type": "text", "required": false, "default": "Telkom University"},
+    {"key": "year", "label": "Tahun", "type": "number", "required": false, "default": 2026}
+  ]
+}
