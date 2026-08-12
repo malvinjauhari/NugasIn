@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from docx import Document as DocxDocument
-from docx.enum.section import WD_ORIENT
+from docx.enum.section import WD_ORIENT, WD_SECTION
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Cm, Pt
 
@@ -132,7 +132,9 @@ class DocxGenerator(BaseGenerator):
             else:
                 para.text = document.footer.content
 
-    def _add_page_number(self, para: Any, format_type: str) -> None:
+    def _add_page_number(
+        self, para: Any, format_type: str, restart: bool = False, start_value: int | None = None
+    ) -> None:
         """Add a page number field to a paragraph."""
         from docx.oxml import OxmlElement
         from docx.oxml.ns import qn
@@ -159,12 +161,94 @@ class DocxGenerator(BaseGenerator):
         fld_char2.set(qn("w:fldCharType"), "end")
         run3._element.append(fld_char2)
 
+    def _configure_section_numbering(
+        self,
+        section: Any,
+        numbering_type: str,
+        format_type: str,
+        start_value: int | None = None,
+    ) -> None:
+        """Configure page numbering for a Word section using native XML."""
+        from docx.oxml import OxmlElement
+        from docx.oxml.ns import qn
+
+        sect_pr = section._sectPr
+
+        # Create w:pgNumType element
+        pg_num_type = OxmlElement("w:pgNumType")
+
+        # Map format type to Word format codes
+        format_map = {
+            "decimal": "decimal",
+            "lower_roman": "lowerRoman",
+            "upper_roman": "upperRoman",
+        }
+        word_format = format_map.get(format_type, "decimal")
+
+        if numbering_type == "none":
+            # Suppress page numbers
+            pg_num_type.set(qn("w:fmt"), "none")
+        elif numbering_type == "continue":
+            # Continue from previous section (no restart)
+            pass
+        else:
+            # roman or arabic - set format and optionally start value
+            pg_num_type.set(qn("w:fmt"), word_format)
+            if start_value is not None:
+                pg_num_type.set(qn("w:start"), str(start_value))
+
+        # Append to sectPr if we have attributes
+        if pg_num_type.attrib:
+            sect_pr.append(pg_num_type)
+
     def _add_content(self, docx: DocxDocument, document: Document) -> None:
         """Add all content sections to the document."""
         for i, section in enumerate(document.sections):
             if i > 0:
-                # Add page break between sections (except first)
-                docx.add_page_break()
+                # Check if this section has page numbering configured
+                if (
+                    section.page_numbering
+                    and section.page_numbering.enabled
+                    and section.page_numbering.numbering_type != "none"
+                ):
+                    # Create a Word section break with numbering
+                    new_section = docx.add_section(WD_SECTION.NEW_PAGE)
+                    self._configure_section_numbering(
+                        new_section,
+                        section.page_numbering.numbering_type,
+                        section.page_numbering.format,
+                        section.page_numbering.start_value,
+                    )
+
+                    # Configure page settings for this section
+                    new_section.page_width = Cm(21.0)
+                    new_section.page_height = Cm(29.7)
+                    if document.page_settings.orientation == Orientation.LANDSCAPE:
+                        new_section.orientation = WD_ORIENT.LANDSCAPE
+                        new_section.page_width = Cm(29.7)
+                        new_section.page_height = Cm(21.0)
+                    else:
+                        new_section.orientation = WD_ORIENT.PORTRAIT
+
+                    new_section.left_margin = Cm(document.page_settings.margin_left_cm)
+                    new_section.top_margin = Cm(document.page_settings.margin_top_cm)
+                    new_section.right_margin = Cm(document.page_settings.margin_right_cm)
+                    new_section.bottom_margin = Cm(document.page_settings.margin_bottom_cm)
+
+                    # Add page number to footer if enabled
+                    if document.footer.page_numbers.enabled:
+                        footer = new_section.footer
+                        footer.is_linked_to_previous = False
+                        para = footer.paragraphs[0]
+                        self._add_page_number(
+                            para,
+                            section.page_numbering.format,
+                            restart=section.page_numbering.numbering_type != "continue",
+                            start_value=section.page_numbering.start_value,
+                        )
+                else:
+                    # Regular page break
+                    docx.add_page_break()
 
             for element in section.elements:
                 self._add_element(docx, element, document)

@@ -1,4 +1,5 @@
 import { TemplateSelector, MetadataForm } from "../config/TemplateSelector";
+import { FormattingPanel } from "../config/FormattingPanel";
 import { useDocumentStore, useUIStore } from "../../stores";
 import type { ConfigTab } from "../../stores";
 import type { TemplateField } from "../../lib/types";
@@ -103,14 +104,7 @@ export function ConfigPanel() {
             </p>
           </div>
         )}
-        {configTab === "formatting" && (
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium text-foreground">Format Lanjutan</h3>
-            <p className="text-sm text-muted-foreground">
-              Pengaturan format lanjutan (coming soon)
-            </p>
-          </div>
-        )}
+        {configTab === "formatting" && <FormattingPanel />}
       </div>
     </aside>
   );

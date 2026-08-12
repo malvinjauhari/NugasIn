@@ -7,6 +7,8 @@ import type { TemplateDefinition, ValidationResult } from "./types";
 const API_BASE = "http://localhost:8000";
 const FETCH_TIMEOUT = 10000; // 10 seconds
 
+export { API_BASE };
+
 /**
  * Check if the Python API server is reachable.
  */

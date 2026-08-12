@@ -13,6 +13,7 @@ from .document import (
     PageSettings,
     Paragraph,
     Section,
+    SectionPageNumbering,
     Table,
     TableCell,
 )
@@ -58,6 +59,7 @@ __all__ = [
     "Paragraph",
     "ParagraphStyle",
     "Section",
+    "SectionPageNumbering",
     "Styles",
     "Table",
     "TableCell",

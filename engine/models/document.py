@@ -62,6 +62,15 @@ class FooterConfig(BaseModel):
     page_numbers: PageNumbers = Field(default_factory=PageNumbers)
 
 
+class SectionPageNumbering(BaseModel):
+    """Per-section page number configuration."""
+
+    enabled: bool = False
+    format: str = "decimal"  # decimal, lower_roman, upper_roman
+    numbering_type: str = "none"  # none, roman, arabic, continue
+    start_value: int | None = None
+
+
 class Paragraph(BaseModel):
     """A text paragraph element."""
 
@@ -141,6 +150,7 @@ class Section(BaseModel):
 
     title: str = ""
     elements: list[DocumentElement] = Field(default_factory=list)
+    page_numbering: SectionPageNumbering | None = None
 
 
 class Document(BaseModel):

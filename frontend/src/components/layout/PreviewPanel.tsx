@@ -181,38 +181,40 @@ function getSectionsForTemplate(templateName: string | null): PreviewSection[] {
 }
 
 export function PreviewPanel() {
-  const { metadata, templateName, pageSettings } = useDocumentStore();
+  const { metadata, templateName, formatting } = useDocumentStore();
 
   const sections = getSectionsForTemplate(templateName);
 
-  // Use different styles for logbook (Arial, landscape)
+  // Use formatting state from store (live updates)
   const isLogbook = templateName === "logbook";
-  const bodyFont = isLogbook ? "Arial" : "Times New Roman";
-  const bodySize = isLogbook ? 10 : 12;
-  const lineSpacing = isLogbook ? 1.0 : 1.5;
-  const headingFont = isLogbook ? "Arial" : "Times New Roman";
-  const headingSize = isLogbook ? 12 : 14;
+  const f = formatting;
+
+  const bodyFont = f.typography.font_family;
+  const bodySize = f.typography.font_size;
+  const lineSpacing = f.paragraph.line_spacing;
+  const headingStyles = f.headings.map((h) => ({
+    level: h.level,
+    font: { name: h.font_family, size_pt: h.font_size, bold: h.bold, italic: h.italic },
+    alignment: h.alignment,
+  }));
 
   const previewDoc: PreviewDocument = {
     metadata,
     page_settings: {
-      ...pageSettings,
-      orientation: isLogbook ? "landscape" : pageSettings.orientation,
-      margin_left_cm: isLogbook ? 1.27 : pageSettings.margin_left_cm,
-      margin_top_cm: isLogbook ? 1.27 : pageSettings.margin_top_cm,
-      margin_right_cm: isLogbook ? 1.27 : pageSettings.margin_right_cm,
-      margin_bottom_cm: isLogbook ? 1.27 : pageSettings.margin_bottom_cm,
+      paper: f.page.paper,
+      orientation: isLogbook ? "landscape" : f.page.orientation,
+      margin_left_cm: isLogbook ? 1.27 : f.page.margin_left_cm,
+      margin_top_cm: isLogbook ? 1.27 : f.page.margin_top_cm,
+      margin_right_cm: isLogbook ? 1.27 : f.page.margin_right_cm,
+      margin_bottom_cm: isLogbook ? 1.27 : f.page.margin_bottom_cm,
     },
     styles: {
       body: {
-        font: { name: bodyFont, size_pt: bodySize, bold: false, italic: false },
-        alignment: "left",
+        font: { name: bodyFont, size_pt: bodySize, bold: f.typography.bold, italic: f.typography.italic },
+        alignment: f.typography.alignment,
         line_spacing: lineSpacing,
       },
-      headings: [
-        { level: 1, font: { name: headingFont, size_pt: headingSize, bold: true, italic: false }, alignment: "center" },
-        { level: 2, font: { name: headingFont, size_pt: bodySize, bold: true, italic: false }, alignment: "left" },
-      ],
+      headings: headingStyles,
     },
     sections,
   };

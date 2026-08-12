@@ -5,6 +5,7 @@
 import { useCallback, useState } from "react";
 import { useDocumentStore } from "../stores";
 import {
+  API_BASE,
   checkServerConnection,
   generateDocument,
   validateDocument,
@@ -14,7 +15,7 @@ import {
 export function useExport() {
   const [isExporting, setIsExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { metadata, templateName } = useDocumentStore();
+  const { metadata, templateName, formatting, setDocumentId } = useDocumentStore();
 
   const exportDoc = useCallback(async () => {
     if (!templateName) {
@@ -42,7 +43,25 @@ export function useExport() {
         metadata as unknown as Record<string, unknown>
       );
 
-      // 2. Validate
+      // Store document ID for formatting apply
+      setDocumentId(document_id);
+
+      // 2. Apply formatting to the generated document
+      try {
+        const formatResponse = await fetch(`${API_BASE}/formatting/${document_id}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formatting),
+        });
+
+        if (!formatResponse.ok) {
+          console.warn("Formatting apply failed, continuing with template defaults");
+        }
+      } catch {
+        console.warn("Formatting apply failed, continuing with template defaults");
+      }
+
+      // 3. Validate
       const validation = await validateDocument(document_id);
       if (!validation.is_valid) {
         const errors = validation.issues
@@ -54,7 +73,7 @@ export function useExport() {
         return;
       }
 
-      // 3. Export as DOCX blob and trigger download
+      // 4. Export as DOCX blob and trigger download
       const blob = await exportDocument(document_id);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -69,7 +88,7 @@ export function useExport() {
     } finally {
       setIsExporting(false);
     }
-  }, [templateName, metadata]);
+  }, [templateName, metadata, formatting, setDocumentId]);
 
   return { exportDoc, isExporting, error };
 }
