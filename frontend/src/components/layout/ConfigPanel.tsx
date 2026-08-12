@@ -1,5 +1,4 @@
 import { TemplateSelector, MetadataForm } from "../config/TemplateSelector";
-import { AssetUploader } from "../config/AssetUploader";
 import { useDocumentStore, useUIStore } from "../../stores";
 import type { ConfigTab } from "../../stores";
 import type { TemplateField } from "../../lib/types";
@@ -96,7 +95,14 @@ export function ConfigPanel() {
             )}
           </>
         )}
-        {configTab === "assets" && <AssetUploader />}
+        {configTab === "assets" && (
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium text-foreground">Aset</h3>
+            <p className="text-sm text-muted-foreground">
+              Upload logo dan gambar (coming soon)
+            </p>
+          </div>
+        )}
         {configTab === "formatting" && (
           <div className="space-y-3">
             <h3 className="text-sm font-medium text-foreground">Format Lanjutan</h3>

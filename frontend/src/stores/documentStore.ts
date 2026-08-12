@@ -21,7 +21,6 @@ export interface Metadata {
   assistant: string;
   group: string;
   module: string;
-  logo_path: string;
   additional: Record<string, string>;
 }
 
@@ -38,7 +37,6 @@ export interface DocumentState {
   metadata: Metadata;
   pageSettings: PageSettings;
   templateName: string | null;
-  logoPath: string | null;
   isDirty: boolean;
   isValid: boolean;
 }
@@ -47,7 +45,6 @@ interface DocumentActions {
   setMetadata: (metadata: Partial<Metadata>) => void;
   setPageSettings: (settings: Partial<PageSettings>) => void;
   setTemplateName: (name: string | null) => void;
-  setLogoPath: (path: string | null) => void;
   setIsDirty: (dirty: boolean) => void;
   setIsValid: (valid: boolean) => void;
   reset: () => void;
@@ -67,7 +64,6 @@ const defaultMetadata: Metadata = {
   assistant: "",
   group: "",
   module: "",
-  logo_path: "",
   additional: {},
 };
 
@@ -84,7 +80,6 @@ const initialState: DocumentState = {
   metadata: { ...defaultMetadata },
   pageSettings: { ...defaultPageSettings },
   templateName: null,
-  logoPath: null,
   isDirty: false,
   isValid: true,
 };

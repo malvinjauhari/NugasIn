@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from engine.models.document import Document
+from engine.models.document import Document, Heading, Paragraph
 from engine.templates.loader import load_template, template_to_document
 
 from .docx import DocxGenerator
@@ -42,20 +42,6 @@ class MakalahGenerator(DocxGenerator):
         # Cover section
         cover = document.add_section("Cover")
         cover.elements.clear()
-
-        # Add logo if provided
-        logo_path = document.metadata.logo_path
-        if logo_path and Path(logo_path).exists():
-            from engine.models.document import Image
-            from engine.models.styles import ImageStyle
-
-            cover.elements.append(
-                Image(
-                    src=logo_path,
-                    alt="Logo Universitas",
-                    style=ImageStyle(alignment="center"),
-                )
-            )
 
         # Kata Pengantar
         kata_pengantar = document.add_section("Kata Pengantar")
