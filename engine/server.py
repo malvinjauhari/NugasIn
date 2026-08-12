@@ -9,7 +9,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from engine.generators import LaprakGenerator
+from engine.generators import LaprakGenerator, MakalahGenerator
 from engine.models import Document
 from engine.templates.registry import TemplateRegistry
 from engine.validators import validate_document
@@ -81,10 +81,13 @@ async def generate_document(request: GenerateRequest) -> GenerateResponse:
     except KeyError:
         raise HTTPException(status_code=404, detail=f"Template '{request.template}' not found")
 
-    # Build structure for Laprak
+    # Build structure based on template type
     if request.template == "laprak":
         generator = LaprakGenerator()
         generator._build_laprak_structure(doc)
+    elif request.template == "makalah":
+        generator = MakalahGenerator()
+        generator._build_makalah_structure(doc)
 
     doc_id = str(uuid.uuid4())
     documents[doc_id] = doc
