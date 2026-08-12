@@ -106,6 +106,8 @@ export const useDocumentStore = create<DocumentState & DocumentActions>((set) =>
 
   setTemplateName: (name) => set({ templateName: name, isDirty: true }),
 
+  setLogoPath: (path) => set({ logoPath: path, isDirty: true }),
+
   setIsDirty: (dirty) => set({ isDirty: dirty }),
 
   setIsValid: (valid) => set({ isValid: valid }),
