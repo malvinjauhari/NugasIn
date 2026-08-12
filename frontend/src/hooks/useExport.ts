@@ -4,7 +4,12 @@
 
 import { useCallback, useState } from "react";
 import { useDocumentStore } from "../stores";
-import { generateDocument, validateDocument, exportDocument } from "../lib/api";
+import {
+  checkServerConnection,
+  generateDocument,
+  validateDocument,
+  exportDocument,
+} from "../lib/api";
 
 export function useExport() {
   const [isExporting, setIsExporting] = useState(false);
@@ -21,8 +26,21 @@ export function useExport() {
     setError(null);
 
     try {
+      // 0. Check server connection first
+      const serverUp = await checkServerConnection();
+      if (!serverUp) {
+        setError(
+          "Python server belum berjalan. Jalankan: ./scripts/dev-server.sh"
+        );
+        setIsExporting(false);
+        return;
+      }
+
       // 1. Generate document
-      const { document_id } = await generateDocument(templateName, metadata as unknown as Record<string, unknown>);
+      const { document_id } = await generateDocument(
+        templateName,
+        metadata as unknown as Record<string, unknown>
+      );
 
       // 2. Validate
       const validation = await validateDocument(document_id);
@@ -31,12 +49,12 @@ export function useExport() {
           .filter((i) => i.severity === "error")
           .map((i) => i.message)
           .join(", ");
-        setError(`Validation failed: ${errors}`);
+        setError(`Validasi gagal: ${errors}`);
         setIsExporting(false);
         return;
       }
 
-      // 3. Export
+      // 3. Export as DOCX blob and trigger download
       const blob = await exportDocument(document_id);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -47,7 +65,7 @@ export function useExport() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Export failed");
+      setError(err instanceof Error ? err.message : "Export gagal");
     } finally {
       setIsExporting(false);
     }
