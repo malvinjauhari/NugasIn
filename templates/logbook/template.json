@@ -1,0 +1,86 @@
+{
+  "name": "logbook",
+  "display_name": "Logbook Tugas Besar",
+  "description": "Template untuk logbook tugas besar dengan tabel progress",
+  "version": "1.0.0",
+  "page": {
+    "paper": "a4",
+    "orientation": "landscape",
+    "margins": {
+      "left": 1.27,
+      "top": 1.27,
+      "right": 1.27,
+      "bottom": 1.27
+    }
+  },
+  "styles": {
+    "body": {
+      "font": {
+        "name": "Arial",
+        "size": 10
+      },
+      "alignment": "left",
+      "line_spacing": 1.0
+    },
+    "headings": [
+      {
+        "level": 1,
+        "font": {
+          "name": "Arial",
+          "size": 12,
+          "bold": true
+        },
+        "alignment": "center",
+        "space_before_pt": 12,
+        "space_after_pt": 6
+      },
+      {
+        "level": 2,
+        "font": {
+          "name": "Arial",
+          "size": 10,
+          "bold": true
+        },
+        "alignment": "left",
+        "space_before_pt": 6,
+        "space_after_pt": 3
+      }
+    ],
+    "table": {
+      "font": {
+        "name": "Arial",
+        "size": 10
+      },
+      "border_width_pt": 0.5,
+      "header_bold": true
+    }
+  },
+  "structure": [
+    {
+      "title": "Header",
+      "type": "header",
+      "elements": []
+    },
+    {
+      "title": "Logbook Table",
+      "type": "table",
+      "columns": [
+        "No.",
+        "Hari, Tanggal",
+        "Aktivitas / Progres Pengerjaan",
+        "Anggota yang Hadir / Terlibat",
+        "Kendala",
+        "Solusi",
+        "Paraf Pembimbing / Asprak"
+      ]
+    }
+  ],
+  "metadata_fields": [
+    {"key": "module", "label": "Mata Kuliah", "type": "text", "required": true},
+    {"key": "title", "label": "Judul Tugas Besar", "type": "text", "required": true},
+    {"key": "group", "label": "Kelompok", "type": "text", "required": true},
+    {"key": "class_name", "label": "Kelas", "type": "text", "required": true},
+    {"key": "author", "label": "Nama Anggota", "type": "text", "required": true},
+    {"key": "nim", "label": "NIM", "type": "text", "required": true}
+  ]
+}

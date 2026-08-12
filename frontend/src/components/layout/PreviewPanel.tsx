@@ -120,12 +120,61 @@ function getMakalahSections(): PreviewSection[] {
   ];
 }
 
+function getLogbookSections(): PreviewSection[] {
+  return [
+    {
+      title: "Header",
+      elements: [
+        { type: "heading", level: 1, text: "LOGBOOK TUGAS BESAR" },
+        {
+          type: "table",
+          rows: [
+            [{ text: "Mata Kuliah", bold: true }, { text: "" }],
+            [{ text: "Judul Tugas Besar", bold: true }, { text: "" }],
+            [{ text: "Kelompok", bold: true }, { text: "" }],
+            [{ text: "Kelas", bold: true }, { text: "" }],
+            [{ text: "Nama Anggota", bold: true }, { text: "" }],
+            [{ text: "NIM", bold: true }, { text: "" }],
+          ],
+          header_row: false,
+        },
+      ],
+    },
+    {
+      title: "Logbook Table",
+      elements: [
+        { type: "heading", level: 1, text: "LOGBOOK Aktivitas" },
+        {
+          type: "table",
+          rows: [
+            [
+              { text: "No.", bold: true },
+              { text: "Hari, Tanggal", bold: true },
+              { text: "Aktivitas / Progres", bold: true },
+              { text: "Anggota Hadir", bold: true },
+              { text: "Kendala", bold: true },
+              { text: "Solusi", bold: true },
+              { text: "Paraf", bold: true },
+            ],
+            [{ text: "1" }, { text: "" }, { text: "" }, { text: "" }, { text: "" }, { text: "" }, { text: "" }],
+            [{ text: "2" }, { text: "" }, { text: "" }, { text: "" }, { text: "" }, { text: "" }, { text: "" }],
+            [{ text: "3" }, { text: "" }, { text: "" }, { text: "" }, { text: "" }, { text: "" }, { text: "" }],
+          ],
+          header_row: true,
+        },
+      ],
+    },
+  ];
+}
+
 function getSectionsForTemplate(templateName: string | null): PreviewSection[] {
   switch (templateName) {
     case "laprak":
       return getLaprakSections();
     case "makalah":
       return getMakalahSections();
+    case "logbook":
+      return getLogbookSections();
     default:
       return [];
   }
@@ -136,19 +185,33 @@ export function PreviewPanel() {
 
   const sections = getSectionsForTemplate(templateName);
 
+  // Use different styles for logbook (Arial, landscape)
+  const isLogbook = templateName === "logbook";
+  const bodyFont = isLogbook ? "Arial" : "Times New Roman";
+  const bodySize = isLogbook ? 10 : 12;
+  const lineSpacing = isLogbook ? 1.0 : 1.5;
+  const headingFont = isLogbook ? "Arial" : "Times New Roman";
+  const headingSize = isLogbook ? 12 : 14;
+
   const previewDoc: PreviewDocument = {
     metadata,
-    page_settings: pageSettings,
+    page_settings: {
+      ...pageSettings,
+      orientation: isLogbook ? "landscape" : pageSettings.orientation,
+      margin_left_cm: isLogbook ? 1.27 : pageSettings.margin_left_cm,
+      margin_top_cm: isLogbook ? 1.27 : pageSettings.margin_top_cm,
+      margin_right_cm: isLogbook ? 1.27 : pageSettings.margin_right_cm,
+      margin_bottom_cm: isLogbook ? 1.27 : pageSettings.margin_bottom_cm,
+    },
     styles: {
       body: {
-        font: { name: "Times New Roman", size_pt: 12, bold: false, italic: false },
-        alignment: "justify",
-        line_spacing: 1.5,
-        first_line_indent_cm: 1.27,
+        font: { name: bodyFont, size_pt: bodySize, bold: false, italic: false },
+        alignment: "left",
+        line_spacing: lineSpacing,
       },
       headings: [
-        { level: 1, font: { name: "Times New Roman", size_pt: 14, bold: true, italic: false }, alignment: "center" },
-        { level: 2, font: { name: "Times New Roman", size_pt: 12, bold: true, italic: false }, alignment: "left" },
+        { level: 1, font: { name: headingFont, size_pt: headingSize, bold: true, italic: false }, alignment: "center" },
+        { level: 2, font: { name: headingFont, size_pt: bodySize, bold: true, italic: false }, alignment: "left" },
       ],
     },
     sections,

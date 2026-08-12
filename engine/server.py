@@ -9,7 +9,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from engine.generators import LaprakGenerator, MakalahGenerator
+from engine.generators import LaprakGenerator, LogbookGenerator, MakalahGenerator
 from engine.models import Document
 from engine.templates.registry import TemplateRegistry
 from engine.validators import validate_document
@@ -88,6 +88,9 @@ async def generate_document(request: GenerateRequest) -> GenerateResponse:
     elif request.template == "makalah":
         generator = MakalahGenerator()
         generator._build_makalah_structure(doc)
+    elif request.template == "logbook":
+        generator = LogbookGenerator()
+        generator._build_logbook_structure(doc)
 
     doc_id = str(uuid.uuid4())
     documents[doc_id] = doc
