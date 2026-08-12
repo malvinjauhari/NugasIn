@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import uuid
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from engine.generators import LaprakGenerator, LogbookGenerator, MakalahGenerator
@@ -27,11 +29,17 @@ app.add_middleware(
 
 # Initialize template registry
 TEMPLATES_DIR = Path(__file__).parent.parent / "templates"
+ASSETS_DIR = Path(__file__).parent.parent / "assets" / "logos"
+ASSETS_DIR.mkdir(parents=True, exist_ok=True)
+
 registry = TemplateRegistry(TEMPLATES_DIR)
 registry.discover()
 
 # In-memory document store (for MVP)
 documents: dict[str, Document] = {}
+
+# Allowed image extensions
+ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp"}
 
 
 class GenerateRequest(BaseModel):
@@ -74,8 +82,6 @@ async def get_template(name: str) -> dict[str, Any]:
 @app.post("/generate", response_model=GenerateResponse)
 async def generate_document(request: GenerateRequest) -> GenerateResponse:
     """Generate a document from template and metadata."""
-    import uuid
-
     try:
         doc = registry.create_document(request.template, request.metadata)
     except KeyError:
@@ -83,14 +89,14 @@ async def generate_document(request: GenerateRequest) -> GenerateResponse:
 
     # Build structure based on template type
     if request.template == "laprak":
-        generator = LaprakGenerator()
-        generator._build_laprak_structure(doc)
+        laprak_gen = LaprakGenerator()
+        laprak_gen._build_laprak_structure(doc)
     elif request.template == "makalah":
-        generator = MakalahGenerator()
-        generator._build_makalah_structure(doc)
+        makalah_gen = MakalahGenerator()
+        makalah_gen._build_makalah_structure(doc)
     elif request.template == "logbook":
-        generator = LogbookGenerator()
-        generator._build_logbook_structure(doc)
+        logbook_gen = LogbookGenerator()
+        logbook_gen._build_logbook_structure(doc)
 
     doc_id = str(uuid.uuid4())
     documents[doc_id] = doc
@@ -145,3 +151,54 @@ async def export_doc(document_id: str) -> dict[str, Any]:
         "content": base64.b64encode(docx_bytes).decode("utf-8"),
         "size": len(docx_bytes),
     }
+
+
+@app.post("/upload")
+async def upload_asset(file: UploadFile = File(...)) -> dict[str, Any]:
+    """Upload an image asset (logo, etc.)."""
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No filename provided")
+
+    ext = Path(file.filename).suffix.lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File type '{ext}' not allowed. Use: {', '.join(ALLOWED_EXTENSIONS)}",
+        )
+
+    # Save with UUID prefix to avoid collisions
+    safe_name = f"{uuid.uuid4().hex[:8]}_{file.filename}"
+    save_path = ASSETS_DIR / safe_name
+
+    content = await file.read()
+    save_path.write_bytes(content)
+
+    return {
+        "filename": safe_name,
+        "original_name": file.filename,
+        "path": str(save_path),
+        "size": len(content),
+    }
+
+
+@app.get("/assets")
+async def list_assets() -> list[dict[str, Any]]:
+    """List uploaded image assets."""
+    assets = []
+    for f in ASSETS_DIR.iterdir():
+        if f.is_file() and f.suffix.lower() in ALLOWED_EXTENSIONS:
+            assets.append({
+                "filename": f.name,
+                "path": str(f),
+                "size": f.stat().st_size,
+            })
+    return assets
+
+
+@app.get("/assets/{filename}")
+async def get_asset(filename: str) -> FileResponse:
+    """Serve an uploaded asset file."""
+    file_path = ASSETS_DIR / filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Asset not found")
+    return FileResponse(file_path)

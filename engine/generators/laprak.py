@@ -43,6 +43,20 @@ class LaprakGenerator(DocxGenerator):
         cover = document.add_section("Cover")
         cover.elements.clear()  # Clear any auto-added elements
 
+        # Add logo if provided
+        logo_path = document.metadata.logo_path
+        if logo_path and Path(logo_path).exists():
+            from engine.models.document import Image
+            from engine.models.styles import ImageStyle
+
+            cover.elements.append(
+                Image(
+                    src=logo_path,
+                    alt="Logo Universitas",
+                    style=ImageStyle(alignment="center"),
+                )
+            )
+
         # BAB I PENDAHULUAN
         bab1 = document.add_section("BAB I PENDAHULUAN")
         document.add_heading("BAB I PENDAHULUAN", level=1, section=bab1)

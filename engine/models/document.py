@@ -24,6 +24,7 @@ class Metadata(BaseModel):
     assistant: str = ""
     group: str = ""
     module: str = ""
+    logo_path: str = ""
     additional: dict[str, str] = Field(default_factory=dict)
 
 
